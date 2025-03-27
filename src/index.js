@@ -1,0 +1,13 @@
+import express from 'express';
+import { StatusCodes } from 'http-status-codes';
+
+import { PORT } from './config/serverConfig.js';
+const app = express();
+
+app.get('/ping', (req, res) => {
+  res.status(StatusCodes.OK).json({ message: 'pong' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
