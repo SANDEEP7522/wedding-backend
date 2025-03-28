@@ -9,3 +9,5 @@ export const MONGO_URL = process.env.MONGO_URL;
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 
 export const PROD_DB_URL = process.env.PROD_DB_URL;
+
+export const FRONTEND_UR = process.env.FRONTEND_UR;
