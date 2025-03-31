@@ -3,6 +3,7 @@ import cors from 'cors';
 import express from 'express';
 import { StatusCodes } from 'http-status-codes';
 
+import { removeUnVerfiedAccount } from './automation/removeUnVerfiedAccount.js';
 import dbConection from './config/dbConfig.js';
 import { FRONTEND_URL, PORT } from './config/serverConfig.js';
 import { errorMiddleware } from './middlewares/error.js';
@@ -20,6 +21,8 @@ app.use(
   })
 );
 app.use('/api/v1/users', userRouter);
+
+removeUnVerfiedAccount();
 
 app.get('/ping', (req, res) => {
   res.status(StatusCodes.OK).json({ message: 'pong' });

@@ -56,11 +56,11 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
       ]
     });
 
-    if (registrationAttemptUser.length > 10) {
+    if (registrationAttemptUser.length > 5) {
       return next(
         new ErrorHandler(
           StatusCodes.BAD_REQUEST,
-          'You have reached the limit of registration attempts (10). Try again later'
+          'You have reached the limit of registration attempts (5). Try again later after 30 minutes.'
         )
       );
     }
