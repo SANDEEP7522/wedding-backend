@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { StatusCodes } from 'http-status-codes';
 import twilio from 'twilio';
 
@@ -309,4 +310,39 @@ export const forgetPassword = catchAsyncError(async (req, res, next) => {
       new ErrorHandler(error.message || 'Cannot send reset password token', 500)
     );
   }
+});
+
+export const resetPassword = catchAsyncError(async (req, res) => {
+  const { token } = req.params;
+
+  const resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() }
+  });
+
+  if (!user) {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: 'Password reset token is invalid or has expired'
+    });
+  }
+
+  if (req.body.password !== req.body.confirmPassword) {
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: 'Password does not match'
+    });
+  }
+
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  sendToken(user, StatusCodes.OK, 'Password updated successfully', res);
 });
