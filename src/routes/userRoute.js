@@ -1,6 +1,7 @@
 import express from 'express';
 
 import {
+  getUser,
   login,
   logout,
   registerUser,
@@ -17,5 +18,7 @@ router.post('/verify-otp', verifyOTP);
 router.post('/login', login);
 
 router.get('/logout', isAuthenticated, logout);
+
+router.get('/user', isAuthenticated, getUser);
 
 export default router;
