@@ -249,3 +249,16 @@ export const login = catchAsyncError(async (req, res, next) => {
 
   sendToken(user, StatusCodes.OK, 'Login Successfully', res);
 });
+
+export const logout = catchAsyncError(async (req, res) => {
+  res
+    .status(200)
+    .cookie('token', '', {
+      expires: new Date(Date.now()),
+      httpOnly: true
+    })
+    .json({
+      success: true,
+      message: 'Logout Successfully'
+    });
+});
