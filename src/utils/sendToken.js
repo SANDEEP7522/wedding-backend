@@ -9,7 +9,7 @@ export const sendToken = (user, statusCode, message, res) => {
   }
 
   const token = user.generateToken();
-//   console.log('token', token);
+  //   console.log('token', token);
 
   const options = {
     expires: new Date(Date.now() + COOKIE_EXPIRE * 24 * 60 * 60 * 1000),

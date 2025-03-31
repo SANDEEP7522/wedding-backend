@@ -218,3 +218,34 @@ function generateEmailTemplate(verificationCode) {
     </div>
   `;
 }
+
+export const login = catchAsyncError(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(
+      new ErrorHandler(
+        StatusCodes.BAD_REQUEST,
+        'Email and Password are required'
+      )
+    );
+  }
+
+  const user = await User.findOne({ email, accountVerified: true }).select(
+    '+password'
+  );
+  if (!user) {
+    return next(
+      new ErrorHandler(StatusCodes.UNAUTHORIZED, 'Invalid email or password')
+    );
+  }
+
+  const isPasswordMatched = await user.comparePassword(password);
+  if (!isPasswordMatched) {
+    return next(
+      new ErrorHandler(StatusCodes.UNAUTHORIZED, 'Invalid email or password')
+    );
+  }
+
+  sendToken(user, StatusCodes.OK, 'Login Successfully', res);
+});
