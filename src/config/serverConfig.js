@@ -30,3 +30,9 @@ export const SMTP_PORT = process.env.SMTP_PORT;
 export const SMTP_USER = process.env.SMTP_USER;
 
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD;
+
+export const JWT_SECRET = process.env.JWT_SECRET;
+
+export const JWT_EXPIRE = process.env.JWT_EXPIRE;
+
+export const COOKIE_EXPIRE = process.env.COOKIE_EXPIRE;

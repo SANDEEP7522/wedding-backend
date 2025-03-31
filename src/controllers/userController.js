@@ -8,8 +8,9 @@ import {
 } from '../config/serverConfig.js';
 import { catchAsyncError } from '../middlewares/catchAsycError.js';
 import ErrorHandler from '../middlewares/error.js';
-import { User } from '../models/userModel.js';
+import User from '../models/userModel.js';
 import { sendEmail } from '../utils/sendEmail.js';
+import { sendToken } from '../utils/sendToken.js';
 
 const client = twilio(TWILIO_SID, TWILIO_TOKEN);
 
@@ -23,7 +24,7 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
     }
 
     function validatePhoneNumber(phone) {
-      const regex = /^[6789]\d{9}$/; // Starts with 6,7,8,9 & has exactly 10 digits
+      const regex = /^\+\d{1,3}\d{7,14}$/;
       return regex.test(phone);
     }
 
@@ -33,92 +34,80 @@ export const registerUser = catchAsyncError(async (req, res, next) => {
       );
     }
 
-    const exitingUser = await User.findOne({
+    const existingUser = await User.findOne({
       $or: [
-        { email: email, accountVerified: true },
-        { phone: phone, accountVerified: true }
+        { email, accountVerified: true },
+        { phone, accountVerified: true }
       ]
     });
 
-    if (exitingUser) {
+    if (existingUser) {
       return next(
         new ErrorHandler(StatusCodes.BAD_REQUEST, 'User already exists')
       );
     }
 
-    const registerationAttemptUser = await User.find({
+    const registrationAttemptUser = await User.find({
       $or: [
         { phone, accountVerified: false },
         { email, accountVerified: false }
       ]
     });
 
-    if (registerationAttemptUser.length > 10) {
+    if (registrationAttemptUser.length > 10) {
       return next(
         new ErrorHandler(
           StatusCodes.BAD_REQUEST,
-          'You have reached the limit of registration attempts (4). Try again an hour later'
+          'You have reached the limit of registration attempts (10). Try again later'
         )
       );
     }
 
-    const userData = {
-      name,
-      email,
-      password,
-      phone
-    };
+    const user = await User.create({ name, email, password, phone });
 
-    const user = await User.create(userData);
-
-    // Generate a verification code for the user and save it to the database
+    // Generate and save the verification code
     const verificationCode = await user.generateVerificationCode();
     await user.save();
 
-    // Send the verification code to the user via the specified verification method (e.g. SMS or email)
-    sendVerificationCode(
+    // Send verification code and wait for it to complete before responding
+    await sendVerificationCode(
       verificationMethod,
       verificationCode,
       name,
       phone,
-      email,
-      res
+      email
     );
 
-    res.status(StatusCodes.CREATED).json({
+    return res.status(StatusCodes.OK).json({
       success: true,
       message: 'User registered successfully'
     });
   } catch (error) {
-    console.log('Register User Error', error);
-    res.status(StatusCodes.BAD_REQUEST).json({
-      success: false,
-      message: error.message
-    });
+    console.error('Register User Error:', error);
+    if (!res.headersSent) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: error.message
+      });
+    }
   }
 });
 
-// Implement the logic to send the verification code to the user via the specified verification method (e.g. SMS or email)
+// ✅ Fixed: `sendVerificationCode` no longer sends multiple responses
 export const sendVerificationCode = async (
   verificationMethod,
   verificationCode,
   name,
   phone,
-  email,
-  res
+  email
 ) => {
-  console.log(`Verification code: ${verificationCode}`);
   try {
+    // console.log(`Verification code: ${verificationCode}`);
+
     if (verificationMethod === 'email') {
-      // Send verification code via email
       const message = generateEmailTemplate(verificationCode);
-      sendEmail({ email, subject: 'Email Verification Needed', message });
-      res.status(StatusCodes.OK).json({
-        success: true,
-        message: `Verification code sent to your email ${name}`
-      });
+      await sendEmail({ email, subject: 'Email Verification Needed', message });
     } else if (verificationMethod === 'phone') {
-      // Send verification code via phone call
       const verificationCodeWithSpace = verificationCode
         .toString()
         .split('')
@@ -129,27 +118,92 @@ export const sendVerificationCode = async (
         from: TWILIO_PHONE_NUMBER,
         to: phone
       });
-
-      res.status(StatusCodes.OK).json({
-        success: true,
-        message: 'Verification code sent to your phone'
-      });
     } else {
-      res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Invalid verification method'
-      });
+      throw new ErrorHandler(
+        StatusCodes.BAD_REQUEST,
+        'Invalid verification method'
+      );
     }
   } catch (error) {
-    console.log('Error sending verification code', error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Error sending verification code'
-    });
+    console.error('Error sending verification code:', error);
   }
 };
 
-// Generate the email template for the verification code
+// ✅ Fixed: `verifyOTP` ensures only one response is sent
+export const verifyOTP = async (req, res, next) => {
+  try {
+    const { email, otp, phone } = req.body;
+
+    function validatePhoneNumber(phone) {
+      const regex = /^\+\d{1,3}\d{7,14}$/;
+      return regex.test(phone);
+    }
+
+    if (!validatePhoneNumber(phone)) {
+      return next(
+        new ErrorHandler(StatusCodes.BAD_REQUEST, 'Invalid phone number format')
+      );
+    }
+
+    const userAllEntries = await User.find({
+      $or: [
+        { email, accountVerified: false },
+        { phone, accountVerified: false }
+      ]
+    }).sort({ createdAt: -1 });
+
+    if (!userAllEntries || userAllEntries.length === 0) {
+      return next(new ErrorHandler(StatusCodes.BAD_REQUEST, 'User not found'));
+    }
+
+    let user = userAllEntries[0];
+
+    if (userAllEntries.length > 1) {
+      await User.deleteMany({
+        _id: { $ne: user._id },
+        $or: [
+          { email, accountVerified: false },
+          { phone, accountVerified: false }
+        ]
+      });
+    }
+
+    if (user.verificationCode !== Number(otp)) {
+      return next(
+        new ErrorHandler(StatusCodes.BAD_REQUEST, 'Invalid verification code')
+      );
+    }
+
+    const verificationCodeExpire = new Date(
+      user.verifecationCodeExpire
+    ).getTime();
+    if (Date.now() > verificationCodeExpire) {
+      return next(
+        new ErrorHandler(
+          StatusCodes.BAD_REQUEST,
+          'Verification code has expired'
+        )
+      );
+    }
+
+    user.accountVerified = true;
+    user.verificationCode = null;
+    user.verifecationCodeExpire = null;
+    await user.save({ validateBeforeSave: true });
+
+    sendToken(user, StatusCodes.OK, 'User verified successfully', res);
+  } catch (error) {
+    console.error('Error verifying user', error);
+    if (!res.headersSent) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Error verifying user'
+      });
+    }
+  }
+};
+
+// ✅ Fixed: Generates email template
 function generateEmailTemplate(verificationCode) {
   return `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 30px; border: 1px solid #ececec; border-radius: 10px; background-color: #ffffff; text-align: left;">
@@ -160,9 +214,7 @@ function generateEmailTemplate(verificationCode) {
         ${verificationCode}
       </div>
       <p style="margin-top: 30px; font-size: 14px; color: #666666;">If you did not initiate this request, please disregard this email.</p>
-      <p style="font-size: 12px; color: #888888; margin-top: 20px;">Thank you,<br>Your Company Team</p>
+      <p style="font-size: 12px; color: #888888; margin-top: 20px;">Thank you,<br>Your Team</p>
     </div>
   `;
 }
-
-console.log(generateEmailTemplate('123456'));
