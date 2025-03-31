@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import twilio from 'twilio';
 
 import {
+  FRONTEND_URL,
   TWILIO_PHONE_NUMBER,
   TWILIO_SID,
   TWILIO_TOKEN
@@ -269,4 +270,43 @@ export const getUser = catchAsyncError(async (req, res) => {
     success: true,
     user
   });
+});
+
+export const forgetPassword = catchAsyncError(async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) {
+    return next(new ErrorHandler('Email is required', 400));
+  }
+  // Fixed: Send email
+  const user = await User.findOne({ email, accountVerified: true });
+
+  if (!user) {
+    return next(new ErrorHandler(StatusCodes.NOT_FOUND, 'User not found'));
+  }
+  //  Fixed: Generate reset password token
+  const resetPasswordToken = user.getResetPasswordToken();
+  await user.save({ validateBeforeSave: false });
+
+  const resetPasswordUrl = `${FRONTEND_URL}/password/reset/${resetPasswordToken}`;
+  const message = `Your password reset token is: \n\n ${resetPasswordUrl} \n\nIf you did not request this email, please ignore it.`;
+
+  try {
+    await sendEmail({
+      email: user.email, // sent email to user
+      subject: 'MERN Authentication Password Reset',
+      message
+    });
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Email sent successfully'
+    });
+  } catch (error) {
+    user.resetPasswordToken = undefined; // reset password token
+    user.resetPasswordExpire = undefined; // reset password expire
+    await user.save({ validateBeforeSave: false }); // save user to database
+    return next(
+      new ErrorHandler(error.message || 'Cannot send reset password token', 500)
+    );
+  }
 });

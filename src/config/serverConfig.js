@@ -10,7 +10,7 @@ export const NODE_ENV = process.env.NODE_ENV || 'development';
 
 export const PROD_DB_URL = process.env.PROD_DB_URL;
 
-export const FRONTEND_UR = process.env.FRONTEND_UR;
+export const FRONTEND_URL = process.env.FRONTEND_URL;
 
 export const TWILIO_SID = process.env.TWILIO_SID;
 
