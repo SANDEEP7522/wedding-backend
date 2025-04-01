@@ -7,7 +7,9 @@ import { removeUnVerfiedAccount } from './automation/removeUnVerfiedAccount.js';
 import dbConection from './config/dbConfig.js';
 import { FRONTEND_URL, PORT } from './config/serverConfig.js';
 import { errorMiddleware } from './middlewares/error.js';
+import eventRoute from './routes/eventRoute.js';
 import userRouter from './routes/userRoute.js';
+
 const app = express();
 
 app.use(express.json());
@@ -21,6 +23,7 @@ app.use(
   })
 );
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/event', eventRoute);
 
 removeUnVerfiedAccount();
 
