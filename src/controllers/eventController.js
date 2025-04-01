@@ -62,17 +62,28 @@ export const getAllEvents = async (req, res) => {
 };
 
 // // Get details of a specific event by ID
-// exports.getEventById = async (req, res) => {
-//   try {
-//     const event = await eventService.getEventById(req.params.id);
-//     if (!event) {
-//       return response.error(res, 'Event not found', 404);
-//     }
-//     return response.success(res, event);
-//   } catch (err) {
-//     return response.error(res, err);
-//   }
-// };
+export const getEventById = async (req, res) => {
+  try {
+    const event = await eventService.getEventById(req.params.id);
+    if (!event) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Event fetched successfully',
+      data: event
+    });
+  } catch (error) {
+    console.log('Error fetching event', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to fetch event'
+    });
+  }
+};
 
 // // Update a specific event's profile
 // exports.updateEventById = async (req, res) => {

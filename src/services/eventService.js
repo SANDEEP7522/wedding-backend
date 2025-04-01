@@ -16,9 +16,9 @@ export const getAllEvents = async (filters = {}) => {
 };
 
 // // Get a specific event by ID
-// export const getEventById = async (id) => {
-//   return await Event.findById(id);
-// };
+export const getEventById = async (id) => {
+  return await Event.findById(id);
+};
 
 // // Update event by ID
 // export const updateEventById = async (id, eventData) => {
