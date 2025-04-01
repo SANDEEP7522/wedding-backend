@@ -11,9 +11,9 @@ export const getEventByNameAndEmail = async (name, email) => {
 };
 
 // // Get all events with optional filters
-// export const getAllEvents = async (filters = {}) => {
-//   return await Event.find(filters).sort({ createdAt: -1 });
-// };
+export const getAllEvents = async (filters = {}) => {
+  return await Event.find(filters).sort({ createdAt: -1 });
+};
 
 // // Get a specific event by ID
 // export const getEventById = async (id) => {

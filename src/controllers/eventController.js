@@ -39,19 +39,27 @@ export const createEvent = async (req, res) => {
   }
 };
 
-// // Get a list of all events (with optional filters)
-// exports.getAllEvents = async (req, res) => {
-//   try {
-//     const { name, isActive } = req.query;
-//     const filters = {};
-//     if (name) filters.name = name;
-//     if (isActive !== undefined) filters.isActive = isActive;
-//     const events = await eventService.getAllEvents(filters);
-//     return response.success(res, events);
-//   } catch (err) {
-//     return response.error(res, err);
-//   }
-// };
+// Get a list of all events (with optional filters)
+export const getAllEvents = async (req, res) => {
+  try {
+    const { name, isActive } = req.query;
+    const filters = {};
+    if (name) filters.name = name;
+    if (isActive !== undefined) filters.isActive = isActive;
+    const events = await eventService.getAllEvents(filters);
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'All events fetched successfully',
+      data: events
+    });
+  } catch (error) {
+    console.log('Error fetching events', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to fetch events'
+    });
+  }
+};
 
 // // Get details of a specific event by ID
 // exports.getEventById = async (req, res) => {
