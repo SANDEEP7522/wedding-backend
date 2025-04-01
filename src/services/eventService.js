@@ -20,10 +20,10 @@ export const getEventById = async (id) => {
   return await Event.findById(id);
 };
 
-// // Update event by ID
-// export const updateEventById = async (id, eventData) => {
-//   return await Event.findByIdAndUpdate(id, eventData, { new: true });
-// };
+// Update event by ID
+export const updateEventById = async (id, eventData) => {
+  return await Event.findByIdAndUpdate(id, eventData, { new: true });
+};
 
 // // Delete an event by ID
 // export const deleteEventById = async (id) => {

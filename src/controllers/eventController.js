@@ -86,17 +86,31 @@ export const getEventById = async (req, res) => {
 };
 
 // // Update a specific event's profile
-// exports.updateEventById = async (req, res) => {
-//   try {
-//     const updatedEvent = await eventService.updateEventById(req.params.id, req.body);
-//     if (!updatedEvent) {
-//       return response.error(res, 'Event not found', 404);
-//     }
-//     return response.success(res, updatedEvent, 'Event updated successfully');
-//   } catch (err) {
-//     return response.error(res, err);
-//   }
-// };
+export const updateEventById = async (req, res) => {
+  try {
+    const updatedEvent = await eventService.updateEventById(
+      req.params.id,
+      req.body
+    );
+    if (!updatedEvent) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Event updated successfully',
+      data: updatedEvent
+    });
+  } catch (error) {
+    console.error('Error updating event', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to update event'
+    });
+  }
+};
 
 // // Delete a specific event by ID
 // exports.deleteEventById = async (req, res) => {
