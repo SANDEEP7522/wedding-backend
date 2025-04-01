@@ -2,6 +2,7 @@ import express from 'express';
 
 import {
   createEvent,
+  deleteEventById,
   getAllEvents,
   getEventById,
   updateEventById
@@ -15,6 +16,8 @@ router.get('/getAllEvents', getAllEvents);
 
 router.get('/:id', getEventById);
 
-router.put('/:id', updateEventById);
+router.put('/update/:id', updateEventById);
+
+router.put('/delete/:id', deleteEventById);
 
 export default router;

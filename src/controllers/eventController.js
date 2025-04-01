@@ -113,14 +113,25 @@ export const updateEventById = async (req, res) => {
 };
 
 // // Delete a specific event by ID
-// exports.deleteEventById = async (req, res) => {
-//   try {
-//     const deletedEvent = await eventService.deleteEventById(req.params.id);
-//     if (!deletedEvent) {
-//       return response.error(res, 'Event not found', 404);
-//     }
-//     return response.success(res, deletedEvent, 'Event deleted successfully');
-//   } catch (err) {
-//     return response.error(res, err);
-//   }
-// };
+export const deleteEventById = async (req, res) => {
+  try {
+    const deletedEvent = await eventService.deleteEventById(req.params.id);
+    if (!deletedEvent) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Event not found'
+      });
+    }
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Event deleted successfully',
+      data: deletedEvent
+    });
+  } catch (error) {
+    console.error('Error deleting event', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to delete event'
+    });
+  }
+};

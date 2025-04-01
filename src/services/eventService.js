@@ -26,6 +26,6 @@ export const updateEventById = async (id, eventData) => {
 };
 
 // // Delete an event by ID
-// export const deleteEventById = async (id) => {
-//   return await Event.findByIdAndDelete(id);
-// };
+export const deleteEventById = async (id) => {
+  return await Event.findByIdAndDelete(id);
+};
