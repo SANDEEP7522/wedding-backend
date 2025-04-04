@@ -38,3 +38,28 @@ export const getEventReviews = async (req, res) => {
     });
   }
 };
+
+// Update a specific review by ID
+export const updateReview = async (req, res) => {
+  try {
+    const reviewId = req.params.reviewId;
+    const updatedReview = await reviewService.updateReview(reviewId, req.body);
+    if (!updatedReview) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Review not found'
+      });
+    }
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Review updated successfully',
+      data: updatedReview
+    });
+  } catch (err) {
+    console.error('Error updating review', err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to update review'
+    });
+  }
+};

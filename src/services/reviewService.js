@@ -10,3 +10,7 @@ export const addReview = async (eventId, reviewData) => {
 export const getVendorReviews = async (eventId) => {
   return await Review.find({ eventId });
 };
+
+export const updateReview = async (reviewId, reviewData) => {
+  return await Review.findByIdAndUpdate(reviewId, reviewData, { new: true });
+};
