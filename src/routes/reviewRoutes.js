@@ -2,6 +2,7 @@ import express from 'express';
 
 import {
   addReview,
+  deleteReview,
   getEventReviews,
   updateReview
 } from '../controllers/reviewController.js';
@@ -12,6 +13,8 @@ router.post('/:id/review', addReview);
 
 router.post('/:id/reviews', getEventReviews);
 
-router.put('/:id/review/:reviewId', updateReview);
+router.put('/:reviewId', updateReview);
+
+router.delete('/delete/:reviewId', deleteReview);
 
 export default router;

@@ -14,3 +14,8 @@ export const getVendorReviews = async (eventId) => {
 export const updateReview = async (reviewId, reviewData) => {
   return await Review.findByIdAndUpdate(reviewId, reviewData, { new: true });
 };
+
+// Delete a specific review by ID
+export const deleteReview = async (reviewId) => {
+  return await Review.findByIdAndDelete(reviewId);
+};

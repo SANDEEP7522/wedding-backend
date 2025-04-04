@@ -63,3 +63,27 @@ export const updateReview = async (req, res) => {
     });
   }
 };
+
+// Delete a specific review by ID
+export const deleteReview = async (req, res) => {
+  try {
+    const reviewId = req.params.reviewId;
+    const deletedReview = await reviewService.deleteReview(reviewId);
+    if (!deletedReview) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Review not found'
+      });
+    }
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Review deleted successfully'
+    });
+  } catch (err) {
+    console.error('Error deleting review', err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to delete review'
+    });
+  }
+};
