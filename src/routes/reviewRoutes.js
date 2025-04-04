@@ -1,9 +1,11 @@
 import express from 'express';
 
-import { addReview } from '../controllers/reviewController.js';
+import { addReview, getEventReviews } from '../controllers/reviewController.js';
 
 const router = express.Router();
 
-router.post('/:id/reviews', addReview);
+router.post('/:id/review', addReview);
+
+router.post('/:id/reviews', getEventReviews);
 
 export default router;
