@@ -89,3 +89,25 @@ export const updateBooking = async (req, res) => {
     });
   }
 };
+
+export const deleteBooking = async (req, res) => {
+  try {
+    const deletedBooking = await bookingService.deleteBooking(req.params.id);
+    if (!deletedBooking) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Booking deleted successfully'
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to delete booking'
+    });
+  }
+};

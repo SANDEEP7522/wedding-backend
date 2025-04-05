@@ -30,3 +30,7 @@ export const getBookingById = async (id) => {
 export const updateBooking = async (id, updateData) => {
   return await Booking.findByIdAndUpdate(id, updateData, { new: true });
 };
+
+export const deleteBooking = async (id) => {
+  return await Booking.findByIdAndDelete(id);
+};
