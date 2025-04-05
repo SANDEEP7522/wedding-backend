@@ -11,3 +11,14 @@ export const approveEvent = async (eventId) => {
     { new: true }
   );
 };
+
+export const adminDeleteEvent = async (eventId) => {
+     console.log("Received event ID:", eventId);
+     const deletedEvent = await Event.findByIdAndDelete(eventId);
+     console.log("Deleted Event:", deletedEvent);
+     if (!deletedEvent) {
+       throw new Error('Event not found');
+     }
+     return deletedEvent;
+   };
+   
