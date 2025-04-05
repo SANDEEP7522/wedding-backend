@@ -38,16 +38,15 @@ export const approveEvent = async (req, res) => {
 
 export const adminRemoveEvent = async (req, res) => {
   try {
-    console.log("Deleting event with ID:", req.params.id);
+    console.log('Deleting event with ID:', req.params.id);
     await adminService.adminDeleteEvent(req.params.id);
-    
+
     res.status(StatusCodes.OK).json({
       success: true,
       message: 'Event removed successfully'
     });
-    
   } catch (err) {
-    console.error("Error in adminRemoveEvent:", err.message);
+    console.error('Error in adminRemoveEvent:', err.message);
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: 'Failed to remove event',
@@ -55,4 +54,3 @@ export const adminRemoveEvent = async (req, res) => {
     });
   }
 };
-
