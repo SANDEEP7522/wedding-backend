@@ -62,3 +62,30 @@ export const getBookingById = async (req, res) => {
     });
   }
 };
+
+// Update a specific booking by ID by the Admin update from Admin panel
+export const updateBooking = async (req, res) => {
+  try {
+    const updatedBooking = await bookingService.updateBooking(
+      req.params.id,
+      req.body
+    );
+    if (!updatedBooking) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Booking updated successfully',
+      data: updatedBooking
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to update booking'
+    });
+  }
+};

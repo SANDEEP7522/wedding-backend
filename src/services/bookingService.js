@@ -26,3 +26,7 @@ export const getAllBookings = async (userId) => {
 export const getBookingById = async (id) => {
   return await Booking.findById(id).populate('eventId');
 };
+
+export const updateBooking = async (id, updateData) => {
+  return await Booking.findByIdAndUpdate(id, updateData, { new: true });
+};
