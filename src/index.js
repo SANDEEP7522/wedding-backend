@@ -9,6 +9,7 @@ import { FRONTEND_URL, PORT } from './config/serverConfig.js';
 import { errorMiddleware } from './middlewares/error.js';
 import eventRoute from './routes/eventRoute.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import searchFiltering from './routes/searchFiltering.js';
 import userRouter from './routes/userRoute.js';
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/event', eventRoute);
 app.use('/api/v1/review', reviewRoutes);
+app.use('/api/v1', searchFiltering);
 
 removeUnVerfiedAccount();
 

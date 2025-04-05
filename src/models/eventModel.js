@@ -24,6 +24,14 @@ const eventSchema = new mongoose.Schema(
       required: [true, 'Phone number is required'],
       match: [/^\+?\d{10,15}$/, 'Please provide a valid phone number'] // Regex for validating phone number
     },
+    location: {
+      type: String,
+      required: [true, 'Location is required']
+    },
+    category: {
+      type: String,
+      required: [true, 'Category is required']
+    },
     address: {
       type: String,
       required: [true, 'Address is required'],
