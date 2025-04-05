@@ -7,6 +7,7 @@ import { removeUnVerfiedAccount } from './automation/removeUnVerfiedAccount.js';
 import dbConection from './config/dbConfig.js';
 import { FRONTEND_URL, PORT } from './config/serverConfig.js';
 import { errorMiddleware } from './middlewares/error.js';
+import bookingRouter from './routes/bookingRoutes.js';
 import eventRoute from './routes/eventRoute.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import searchFiltering from './routes/searchFiltering.js';
@@ -28,6 +29,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/event', eventRoute);
 app.use('/api/v1/review', reviewRoutes);
 app.use('/api/v1', searchFiltering);
+app.use('/api/v1', bookingRouter);
 
 removeUnVerfiedAccount();
 
