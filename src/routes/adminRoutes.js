@@ -1,9 +1,11 @@
 import express from 'express';
 
-import { getAllEventes } from '../controllers/adminController.js';
+import { approveEvent, getAllEventes } from '../controllers/adminController.js';
 
 const router = express.Router();
 
 router.get('/events', getAllEventes);
+
+router.put('/events/:id/approve', approveEvent);
 
 export default router;

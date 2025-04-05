@@ -18,3 +18,20 @@ export const getAllEventes = async (req, res) => {
     });
   }
 };
+
+export const approveEvent = async (req, res) => {
+  try {
+    const updated = await adminService.approveEvent(req.params.id);
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Event approved successfully',
+      data: updated
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to approve event'
+    });
+  }
+};
