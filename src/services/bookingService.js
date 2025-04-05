@@ -22,3 +22,7 @@ export const getAllBookings = async (userId) => {
     throw error;
   }
 };
+
+export const getBookingById = async (id) => {
+  return await Booking.findById(id).populate('eventId');
+};

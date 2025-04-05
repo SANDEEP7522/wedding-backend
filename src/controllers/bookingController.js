@@ -38,3 +38,27 @@ export const getAllBookings = async (req, res) => {
     });
   }
 };
+
+// Get a specific booking by ID
+export const getBookingById = async (req, res) => {
+  try {
+    const booking = await bookingService.getBookingById(req.params.id);
+    if (!booking) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Booking not found'
+      });
+    }
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'Your Booking fetched successfully',
+      data: booking
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'Failed to fetch booking'
+    });
+  }
+};
